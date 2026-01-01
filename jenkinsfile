@@ -1,21 +1,48 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Clone & Build') {
-            steps {
-                // Clone the code
-                checkout scm
+    environment {
+        OUTPUT_FILE = "build_output.txt"
+    }
 
-                // Build step (example: shell command)
-                sh 'echo "Building project from branch: ${env.BRANCH_NAME}"'
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "Cloning repository..."
+                checkout scm
+                echo "Current workspace: ${env.WORKSPACE}"
             }
         }
 
-        stage('Test') {
+        stage('Build') {
             steps {
-                sh 'echo "Running tests..."'
+                echo "Running build script..."
+                sh './hello.sh | tee $OUTPUT_FILE'
             }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                echo "Archiving output file..."
+                archiveArtifacts artifacts: "$OUTPUT_FILE", fingerprint: true
+            }
+        }
+
+        stage('Summary') {
+            steps {
+                echo "Build completed for branch: ${env.BRANCH_NAME}"
+                echo "Build number: ${env.BUILD_NUMBER}"
+                echo "Workspace path: ${env.WORKSPACE}"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Build SUCCESS!"
+        }
+        failure {
+            echo "Build FAILED!"
         }
     }
 }

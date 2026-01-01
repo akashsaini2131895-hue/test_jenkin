@@ -2,16 +2,19 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        stage('Clone & Build') {
             steps {
+                // Clone the code
                 checkout scm
+
+                // Build step (example: shell command)
+                sh 'echo "Building project from branch: ${env.BRANCH_NAME}"'
             }
         }
 
-        stage('Run Script') {
+        stage('Test') {
             steps {
-                sh 'chmod +x hello.sh'
-                sh './hello.sh'
+                sh 'echo "Running tests..."'
             }
         }
     }
